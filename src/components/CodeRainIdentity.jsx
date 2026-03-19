@@ -3,15 +3,29 @@ import { useEffect, useRef } from 'react'
 const CHARS = '01アイウエオカキクケコサシスセソタチツテトナニヌネノ{}[]<>/\\|;:ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 const FONT_SIZE = 14
-const TRAIL_LENGTH = 20
 const NAME_BLEND_FRAMES = 30
 const EXPLODE_FRAMES = 46
+const MIN_VISIBLE_RATIO = 0.2
 
 const randomChar = () => CHARS[Math.floor(Math.random() * CHARS.length)]
 
-const makeTrail = () => Array.from({ length: TRAIL_LENGTH }, () => randomChar())
+const makeTrail = (length) => Array.from({ length }, () => randomChar())
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value))
+
+const getDeviceProfile = () => {
+  const hasTouch = window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0
+  const cpuThreads = typeof navigator.hardwareConcurrency === 'number' ? navigator.hardwareConcurrency : 8
+  const memory = typeof navigator.deviceMemory === 'number' ? navigator.deviceMemory : 8
+  const isLowPower = cpuThreads <= 4 || memory <= 4
+
+  return {
+    hasTouch,
+    isLowPower,
+    dprCap: hasTouch ? 1.25 : 1.75,
+    densityMultiplier: isLowPower ? 1.45 : hasTouch ? 1.2 : 1,
+  }
+}
 
 export const CodeRainIdentity = () => {
   const canvasRef = useRef(null)
@@ -28,10 +42,15 @@ export const CodeRainIdentity = () => {
   const settlePulseFramesRef = useRef(0)
   const settlePulseTriggeredRef = useRef(false)
   const resizeObserverRef = useRef(null)
+  const visibilityObserverRef = useRef(null)
   const autoCycleStopRef = useRef(null)
   const cycleTimerRef = useRef(null)
   const cycleTimerNameRef = useRef(null)
   const leaveTimerRef = useRef(null)
+  const isCanvasVisibleRef = useRef(true)
+  const isTabVisibleRef = useRef(true)
+  const isLoopRunningRef = useRef(false)
+  const profileRef = useRef({ dprCap: 1.75, densityMultiplier: 1, isLowPower: false })
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -45,14 +64,60 @@ export const CodeRainIdentity = () => {
     }
 
     let mounted = true
+    profileRef.current = getDeviceProfile()
+
+    canvas.style.imageRendering = 'pixelated'
+
+    const shouldRun = () => isCanvasVisibleRef.current && isTabVisibleRef.current
+
+    const stopLoop = () => {
+      if (!isLoopRunningRef.current) {
+        return
+      }
+      cancelAnimationFrame(animationRef.current)
+      isLoopRunningRef.current = false
+    }
+
+    const loop = () => {
+      if (!mounted) {
+        return
+      }
+
+      if (!shouldRun()) {
+        stopLoop()
+        return
+      }
+
+      if (modeRef.current === 'name') {
+        drawNameAssembly()
+      } else if (modeRef.current === 'explode') {
+        drawExplode()
+      } else {
+        drawRain()
+      }
+
+      animationRef.current = requestAnimationFrame(loop)
+    }
+
+    const startLoop = () => {
+      if (!mounted || isLoopRunningRef.current || !shouldRun()) {
+        return
+      }
+      isLoopRunningRef.current = true
+      animationRef.current = requestAnimationFrame(loop)
+    }
 
     const initializeRain = (width, height) => {
-      const cols = Math.max(1, Math.floor(width / FONT_SIZE))
+      const scaledFont = Math.max(10, FONT_SIZE * profileRef.current.densityMultiplier)
+      const cols = Math.max(1, Math.floor(width / scaledFont))
+      const trailLength = Math.max(12, Math.floor((height / scaledFont) * 0.36))
+
       columnsRef.current = Array.from({ length: cols }, () => ({
         y: -Math.random() * height,
         speed: 1.2 + Math.random() * 2.3,
-        chars: makeTrail(),
+        chars: makeTrail(trailLength),
         tick: 0,
+        step: scaledFont,
       }))
     }
 
@@ -78,8 +143,10 @@ export const CodeRainIdentity = () => {
       const image = offscreenCtx.getImageData(0, 0, width, height)
       const points = []
 
-      for (let y = 0; y < height; y += 6) {
-        for (let x = 0; x < width; x += 6) {
+      const pointStep = profileRef.current.isLowPower ? 8 : 6
+
+      for (let y = 0; y < height; y += pointStep) {
+        for (let x = 0; x < width; x += pointStep) {
           const alpha = image.data[(y * width + x) * 4 + 3]
           if (alpha > 128) {
             points.push({ x, y })
@@ -134,7 +201,7 @@ export const CodeRainIdentity = () => {
 
       const width = Math.max(1, Math.floor(parent.clientWidth))
       const height = Math.max(1, Math.floor(parent.clientHeight))
-      const dpr = window.devicePixelRatio || 1
+      const dpr = Math.min(window.devicePixelRatio || 1, profileRef.current.dprCap)
 
       canvas.width = Math.max(1, Math.floor(width * dpr))
       canvas.height = Math.max(1, Math.floor(height * dpr))
@@ -199,11 +266,11 @@ export const CodeRainIdentity = () => {
           drop.chars[randomIndex] = randomChar()
         }
 
-        const x = colIndex * FONT_SIZE
+        const x = colIndex * drop.step
 
         for (let j = 0; j < drop.chars.length; j += 1) {
-          const y = drop.y - j * FONT_SIZE
-          if (y < -FONT_SIZE || y > height + FONT_SIZE) {
+          const y = drop.y - j * drop.step
+          if (y < -drop.step || y > height + drop.step) {
             continue
           }
 
@@ -221,10 +288,10 @@ export const CodeRainIdentity = () => {
 
         drop.y += drop.speed
 
-        if (drop.y > height + drop.chars.length * FONT_SIZE) {
+        if (drop.y > height + drop.chars.length * drop.step) {
           drop.y = -Math.random() * height * 0.8
           drop.speed = 1.2 + Math.random() * 2.3
-          drop.chars = makeTrail()
+          drop.chars = makeTrail(drop.chars.length)
           drop.tick = 0
         }
       })
@@ -373,22 +440,6 @@ export const CodeRainIdentity = () => {
       }
     }
 
-    const loop = () => {
-      if (!mounted) {
-        return
-      }
-
-      if (modeRef.current === 'name') {
-        drawNameAssembly()
-      } else if (modeRef.current === 'explode') {
-        drawExplode()
-      } else {
-        drawRain()
-      }
-
-      animationRef.current = requestAnimationFrame(loop)
-    }
-
     const startAutoCycle = () => {
       clearAutoTimers()
 
@@ -457,7 +508,7 @@ export const CodeRainIdentity = () => {
 
     resizeCanvas()
     startAutoCycle()
-    animationRef.current = requestAnimationFrame(loop)
+    startLoop()
 
     resizeObserverRef.current = new ResizeObserver(() => {
       resizeCanvas()
@@ -468,21 +519,57 @@ export const CodeRainIdentity = () => {
       resizeObserverRef.current.observe(parent)
     }
 
+    visibilityObserverRef.current = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries
+        if (!entry) {
+          return
+        }
+
+        isCanvasVisibleRef.current = entry.isIntersecting && entry.intersectionRatio > MIN_VISIBLE_RATIO
+        if (shouldRun()) {
+          startLoop()
+        } else {
+          stopLoop()
+        }
+      },
+      {
+        threshold: [0, MIN_VISIBLE_RATIO, 1],
+      },
+    )
+
+    visibilityObserverRef.current.observe(canvas)
+
+    const handleVisibilityChange = () => {
+      isTabVisibleRef.current = document.visibilityState === 'visible'
+      if (shouldRun()) {
+        startLoop()
+      } else {
+        stopLoop()
+      }
+    }
+
     window.addEventListener('resize', resizeCanvas)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
     canvas.addEventListener('mousemove', handleMouseMove)
     canvas.addEventListener('mouseenter', handleMouseEnter)
     canvas.addEventListener('mouseleave', handleMouseLeave)
 
     return () => {
       mounted = false
-      cancelAnimationFrame(animationRef.current)
+      stopLoop()
       window.removeEventListener('resize', resizeCanvas)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
       canvas.removeEventListener('mousemove', handleMouseMove)
       canvas.removeEventListener('mouseenter', handleMouseEnter)
       canvas.removeEventListener('mouseleave', handleMouseLeave)
 
       if (resizeObserverRef.current) {
         resizeObserverRef.current.disconnect()
+      }
+
+      if (visibilityObserverRef.current) {
+        visibilityObserverRef.current.disconnect()
       }
 
       if (leaveTimerRef.current) {

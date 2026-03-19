@@ -46,7 +46,7 @@ export const ExperienceSection = () => {
           className="section-underline arsenal-underline"
           initial={{ scaleX: 0 }}
           whileInView={{ scaleX: 1 }}
-          viewport={{ once: true, amount: 0.5 }}
+          viewport={{ once: true, amount: 0.5, margin: '-80px 0px' }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
         />
       </div>
@@ -65,7 +65,7 @@ export const ExperienceSection = () => {
             fill="none"
             initial={{ pathLength: 0 }}
             whileInView={{ pathLength: 1 }}
-            viewport={{ once: true, amount: 0.3 }}
+            viewport={{ once: true, amount: 0.3, margin: '-80px 0px' }}
             transition={{ duration: 1.2, ease: 'easeInOut' }}
           />
         </svg>
@@ -74,7 +74,7 @@ export const ExperienceSection = () => {
           className="timeline-content"
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
+          viewport={{ once: true, amount: 0.2, margin: '-80px 0px' }}
           transition={{ staggerChildren: 0.16 }}
         >
           {experiences.map((exp) => (

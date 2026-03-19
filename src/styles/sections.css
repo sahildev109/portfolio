@@ -403,14 +403,6 @@
   z-index: 2;
 }
 
-.projects-particles {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0.55;
-}
-
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -421,6 +413,7 @@
   position: relative;
   min-height: 330px;
   padding: 1.15rem;
+  will-change: transform;
   border: 1px solid var(--border);
   border-radius: 0.65rem;
   background: var(--surface);
@@ -565,10 +558,6 @@
 
   .projects-inner {
     width: min(1320px, calc(100% - 1.5rem));
-  }
-
-  .projects-particles {
-    display: none;
   }
 
   .skills-grid {

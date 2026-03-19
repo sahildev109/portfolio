@@ -29,6 +29,8 @@ export const CursorFX = () => {
   const historyRef = useRef(Array.from({ length: TRAIL_COUNT }, () => ({ x: mouseRef.current.x, y: mouseRef.current.y })))
   const trailPosRef = useRef(Array.from({ length: TRAIL_COUNT }, () => ({ x: mouseRef.current.x, y: mouseRef.current.y })))
   const magneticTargetRef = useRef(null)
+  const queuedPositionRef = useRef(null)
+  const queuedElementRef = useRef(null)
 
   useEffect(() => {
     const dot = dotRef.current
@@ -116,16 +118,10 @@ export const CursorFX = () => {
       const x = event.clientX
       const y = event.clientY
 
-      mouseRef.current.x = x
-      mouseRef.current.y = y
+      queuedPositionRef.current = { x, y }
+      queuedElementRef.current = event.target.closest(INTERACTIVE_SELECTOR)
       setIdle(false)
       queueIdle()
-
-      positionDot(x, y)
-
-      const interactiveElement = event.target.closest(INTERACTIVE_SELECTOR)
-      setLabelForElement(interactiveElement)
-      findMagneticTarget(x, y)
     }
 
     const onMouseDown = () => {
@@ -196,6 +192,16 @@ export const CursorFX = () => {
     queueIdle()
 
     const tick = () => {
+      if (queuedPositionRef.current) {
+        const { x, y } = queuedPositionRef.current
+        mouseRef.current.x = x
+        mouseRef.current.y = y
+        positionDot(x, y)
+        findMagneticTarget(x, y)
+        setLabelForElement(queuedElementRef.current)
+        queuedPositionRef.current = null
+      }
+
       const mouse = mouseRef.current
       historyRef.current.unshift({ x: mouse.x, y: mouse.y })
       historyRef.current.length = TRAIL_COUNT

@@ -73,7 +73,7 @@ export const SkillsSection = () => {
           className="section-underline arsenal-underline"
           initial={{ scaleX: 0 }}
           whileInView={{ scaleX: 1 }}
-          viewport={{ once: true, amount: 0.5 }}
+          viewport={{ once: true, amount: 0.5, margin: '-80px 0px' }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
         />
       </div>
@@ -83,7 +83,7 @@ export const SkillsSection = () => {
         variants={sectionVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
+        viewport={{ once: true, amount: 0.2, margin: '-80px 0px' }}
       >
         <div className="skills-grid">
           {skillsByCategory.map(({ category, skills, accent, slug }) => (

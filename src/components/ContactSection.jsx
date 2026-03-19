@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion'
+
 export const ContactSection = () => {
   const contacts = [
     {
@@ -23,7 +25,14 @@ export const ContactSection = () => {
   ]
 
   return (
-    <section className="contact-section section-shell" id="contact">
+    <motion.section
+      className="contact-section section-shell"
+      id="contact"
+      initial={{ opacity: 0, y: 22 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.25, margin: '-80px 0px' }}
+      transition={{ duration: 0.65, ease: 'easeOut' }}
+    >
       <div className="contact-grid">
         <div className="contact-left">
           <h2 className="contact-title">
@@ -56,6 +65,6 @@ export const ContactSection = () => {
           ))}
         </ul>
       </div>
-    </section>
+    </motion.section>
   )
 }

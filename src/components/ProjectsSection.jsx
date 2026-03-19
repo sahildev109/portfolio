@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Canvas, useFrame } from '@react-three/fiber'
 
 const projects = [
   {
@@ -41,70 +40,6 @@ const cardVariants = {
     y: 0,
     transition: { duration: 0.5, ease: 'easeOut' },
   },
-}
-
-const ParticleField = () => {
-  const pointsRef = useRef(null)
-
-  const { positions, colors } = useMemo(() => {
-    const count = 260
-    const positionsArray = new Float32Array(count * 3)
-    const colorsArray = new Float32Array(count * 3)
-
-    for (let index = 0; index < count; index += 1) {
-      const x = (Math.random() - 0.5) * 28
-      const y = (Math.random() - 0.5) * 16
-      const z = (Math.random() - 0.5) * 18
-
-      positionsArray[index * 3] = x
-      positionsArray[index * 3 + 1] = y
-      positionsArray[index * 3 + 2] = z
-
-      const isGreen = Math.random() > 0.55
-      colorsArray[index * 3] = isGreen ? 0.0 : 0.96
-      colorsArray[index * 3 + 1] = isGreen ? 1.0 : 0.98
-      colorsArray[index * 3 + 2] = isGreen ? 0.53 : 0.99
-    }
-
-    return { positions: positionsArray, colors: colorsArray }
-  }, [])
-
-  useFrame(({ clock }) => {
-    if (!pointsRef.current) {
-      return
-    }
-
-    pointsRef.current.rotation.y = clock.elapsedTime * 0.025
-    pointsRef.current.rotation.x = Math.sin(clock.elapsedTime * 0.2) * 0.03
-    pointsRef.current.position.y = Math.sin(clock.elapsedTime * 0.35) * 0.25
-  })
-
-  return (
-    <points ref={pointsRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={positions.length / 3}
-          array={positions}
-          itemSize={3}
-        />
-        <bufferAttribute
-          attach="attributes-color"
-          count={colors.length / 3}
-          array={colors}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.065}
-        vertexColors
-        transparent
-        opacity={0.8}
-        sizeAttenuation
-        depthWrite={false}
-      />
-    </points>
-  )
 }
 
 export const ProjectsSection = () => {
@@ -152,16 +87,6 @@ export const ProjectsSection = () => {
 
   return (
     <section className="projects-section" id="work">
-      <div className="projects-particles" aria-hidden="true">
-        <Canvas
-          gl={{ alpha: true, antialias: true }}
-          onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
-          camera={{ position: [0, 0, 12], fov: 60 }}
-        >
-          <ParticleField />
-        </Canvas>
-      </div>
-
       <div className="projects-inner">
         <div className="section-head">
           <h2 className="section-title section-title-glitch" data-text="BUILDS">
@@ -171,7 +96,7 @@ export const ProjectsSection = () => {
             className="section-underline arsenal-underline"
             initial={{ scaleX: 0 }}
             whileInView={{ scaleX: 1 }}
-            viewport={{ once: true, amount: 0.5 }}
+            viewport={{ once: true, amount: 0.5, margin: '-80px 0px' }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
           />
         </div>
@@ -181,7 +106,7 @@ export const ProjectsSection = () => {
           variants={fieldVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
+          viewport={{ once: true, amount: 0.2, margin: '-80px 0px' }}
         >
           {projects.map((project, index) => (
             <motion.article
