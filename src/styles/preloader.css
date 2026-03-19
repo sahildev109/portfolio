@@ -1,0 +1,117 @@
+.preloader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #030712;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 500ms ease;
+}
+
+.preloader-overlay.is-fading {
+  opacity: 0;
+}
+
+.preloader-scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+}
+
+.preloader-corner {
+  position: fixed;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: rgba(0, 255, 135, 0.4);
+  z-index: 2;
+}
+
+.preloader-corner-top {
+  top: 1rem;
+  left: 1rem;
+}
+
+.preloader-corner-bottom {
+  bottom: 1rem;
+  right: 1rem;
+}
+
+.preloader-terminal {
+  width: min(600px, calc(100% - 2rem));
+  z-index: 2;
+}
+
+.preloader-line {
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1.8;
+  min-height: 1.8em;
+  margin: 0;
+  text-align: left;
+  white-space: pre-wrap;
+}
+
+.preloader-cursor {
+  margin-left: 1px;
+  color: #00ff87;
+  animation: preloader-blink 530ms step-end infinite;
+}
+
+@keyframes preloader-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.preloader-progress-wrap {
+  width: 100%;
+  margin-top: 0.7rem;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.preloader-progress-wrap.is-visible {
+  opacity: 1;
+}
+
+.preloader-progress-bar {
+  height: 2px;
+  background: #00ff87;
+  box-shadow: 0 0 8px #00ff87;
+  width: 0;
+}
+
+.preloader-skip {
+  position: fixed;
+  left: 50%;
+  bottom: 1.2rem;
+  transform: translateX(-50%);
+  border: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.2);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  padding: 0;
+  text-transform: uppercase;
+  z-index: 2;
+}
+
+.preloader-skip:hover,
+.preloader-skip:focus-visible {
+  color: rgba(0, 255, 135, 0.6);
+}

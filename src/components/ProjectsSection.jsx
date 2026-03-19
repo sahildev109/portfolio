@@ -167,6 +167,13 @@ export const ProjectsSection = () => {
           <h2 className="section-title section-title-glitch" data-text="BUILDS">
             BUILDS
           </h2>
+          <motion.span
+            className="section-underline arsenal-underline"
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+          />
         </div>
 
         <motion.div

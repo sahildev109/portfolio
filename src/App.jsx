@@ -1,4 +1,5 @@
-import { useAnimatedCursor } from './hooks/useAnimatedCursor'
+import { useState } from 'react'
+import { CursorFX } from './components/CursorFX'
 import { Navbar } from './components/Navbar'
 import { ScrollProgress } from './components/ScrollProgress'
 import { HeroSection } from './components/HeroSection'
@@ -8,29 +9,39 @@ import { ProjectsSection } from './components/ProjectsSection'
 import { ContactSection } from './components/ContactSection'
 import { BackToTop } from './components/BackToTop'
 import { Footer } from './components/Footer'
+import { PagePreloader } from './components/PagePreloader'
 import './globals.css'
 import './App.css'
 import './styles/sections.css'
 import './styles/site-ui.css'
 
 function App() {
-  // Initialize custom animated cursor
-  useAnimatedCursor()
+  const [loaded, setLoaded] = useState(false)
 
   return (
     <main className="main-layout" id="top">
-      <ScrollProgress />
-      <Navbar />
+      {!loaded && <PagePreloader onComplete={() => setLoaded(true)} />}
 
-      {/* Hero Section */}
-      <HeroSection />
+      <div
+        style={{
+          opacity: loaded ? 1 : 0,
+          transition: 'opacity 600ms ease',
+        }}
+      >
+        {loaded ? <CursorFX /> : null}
+        <ScrollProgress />
+        <Navbar />
 
-      <SkillsSection />
-      <ExperienceSection />
-      <ProjectsSection />
-      <ContactSection />
-      <Footer />
-      <BackToTop />
+        {/* Hero Section */}
+        <HeroSection />
+
+        <SkillsSection />
+        <ExperienceSection />
+        <ProjectsSection />
+        <ContactSection />
+        <Footer />
+        <BackToTop />
+      </div>
     </main>
   )
 }

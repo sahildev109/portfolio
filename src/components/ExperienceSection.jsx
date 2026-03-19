@@ -42,6 +42,13 @@ export const ExperienceSection = () => {
         >
           DEPLOYED IN THE FIELD
         </h2>
+        <motion.span
+          className="section-underline arsenal-underline"
+          initial={{ scaleX: 0 }}
+          whileInView={{ scaleX: 1 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+        />
       </div>
 
       <div className="timeline-wrap">
