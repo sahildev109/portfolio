@@ -65,7 +65,7 @@ export const SkillsSection = () => {
   return (
     <section className="skills-section section-shell" id="skills">
       <div className="section-head section-head-arsenal">
-        <p className="skills-meta-label">// 003 SKILLS</p>
+        {/* <p className="skills-meta-label">// 003 SKILLS</p> */}
         <h2 className="section-title arsenal-title" data-text="ARSENAL">
           ARSENAL
         </h2>

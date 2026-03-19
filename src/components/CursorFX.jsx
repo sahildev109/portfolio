@@ -7,6 +7,10 @@ const getDistance = (x1, y1, x2, y2) => Math.hypot(x2 - x1, y2 - y1)
 const lerp = (start, end, factor) => start + (end - start) * factor
 
 export const CursorFX = () => {
+  const canUseCustomCursor =
+    typeof window !== 'undefined' &&
+    window.matchMedia('(hover: hover) and (pointer: fine)').matches
+
   const dotRef = useRef(null)
   const ringRef = useRef(null)
   const crossRef = useRef(null)
@@ -33,6 +37,10 @@ export const CursorFX = () => {
   const queuedElementRef = useRef(null)
 
   useEffect(() => {
+    if (!canUseCustomCursor) {
+      return undefined
+    }
+
     const dot = dotRef.current
     const ring = ringRef.current
     const cross = crossRef.current
@@ -275,6 +283,10 @@ export const CursorFX = () => {
       }
     }
   }, [])
+
+  if (!canUseCustomCursor) {
+    return null
+  }
 
   return (
     <>
