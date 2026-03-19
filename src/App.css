@@ -1,0 +1,27 @@
+/* Main Layout */
+.main-layout {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  padding-top: 56px;
+}
+
+section[id] {
+  scroll-margin-top: 74px;
+}
+
+.hero-section {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive padding */
+@media (max-width: 768px) {
+  .main-layout {
+    padding: 56px 1rem 0;
+  }
+}
